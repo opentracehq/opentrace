@@ -2,6 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { BreakButton } from "@/components/break-button";
 import { queryClient, trpc } from "@/utils/trpc";
 
 const PREVIEW_LENGTH = 100;
@@ -66,6 +67,15 @@ export default function Home() {
             className={`h-3 w-3 ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
           />
           <span className="text-gray-600 dark:text-gray-300">{statusText}</span>
+        </div>
+      </div>
+
+      <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
+        <h2 className="mb-4 font-medium text-lg dark:text-white">
+          SDK Test Controls
+        </h2>
+        <div className="mb-4">
+          <BreakButton />
         </div>
       </div>
 
