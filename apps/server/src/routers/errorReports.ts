@@ -1,7 +1,8 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { publicProcedure, router } from "../lib/trpc.js";
 import { db } from "../db/index.js";
 import { errorReport } from "../db/schema/error.js";
+import { publicProcedure, router } from "../lib/trpc.js";
 import { createErrorReportSchema } from "../schemas/error.js";
 
 export const errorReportsRouter = router({
@@ -19,7 +20,7 @@ export const errorReportsRouter = router({
         .returning();
       return result[0];
     }),
-  
+
   getAll: publicProcedure.query(async () => {
     const reports = await db
       .select()
@@ -50,7 +51,7 @@ export const errorReportsRouter = router({
   generateMany: publicProcedure.mutation(async () => {
     const errorMessages = [
       "Network timeout",
-      "Database connection failed", 
+      "Database connection failed",
       "Invalid user input",
       "Permission denied",
       "Resource not found",
@@ -58,16 +59,18 @@ export const errorReportsRouter = router({
       "Parse error",
       "Authentication failed",
       "Rate limit exceeded",
-      "Internal server error"
+      "Internal server error",
     ];
 
     const reports = Array.from({ length: 10 }, (_, i) => ({
+      // biome-ignore lint/style/noMagicNumbers: dev tools mvp
       projectId: Math.random() > 0.5 ? "demo" : "production",
       payload: {
         error: errorMessages[i],
         message: `Error ${i + 1}: ${errorMessages[i]}`,
-        code: `ERR_${String(i + 1).padStart(3, '0')}`,
-        severity: Math.random() > 0.7 ? "critical" : Math.random() > 0.4 ? "warning" : "info",
+        // biome-ignore lint/style/noMagicNumbers: dev tools mvp
+        code: `ERR_${String(i + 1).padStart(3, "0")}`,
+        severity: "critical",
         timestamp: new Date().toISOString(),
       },
       createdAt: new Date(),
@@ -87,7 +90,7 @@ export const errorReportsRouter = router({
     .mutation(async ({ input }) => {
       const result = await db
         .delete(errorReport)
-        .where(errorReport.id.eq(input.id))
+        .where(eq(errorReport.id, input.id))
         .returning();
       return result[0];
     }),
