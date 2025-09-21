@@ -1,13 +1,37 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ModeToggle } from "@/components/mode-toggle";
-import { trpc } from "@/utils/trpc";
+import { queryClient, trpc } from "@/utils/trpc";
 
 const PREVIEW_LENGTH = 100;
 
 export default function Home() {
   const healthCheck = useQuery(trpc.healthCheck.queryOptions());
-  const errorReports = useQuery(trpc.getErrorReports.queryOptions());
+  const errorReports = useQuery(trpc.errorReports.getAll.queryOptions());
+
+  const generateOne = useMutation(
+    trpc.errorReports.generateOne.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries();
+      },
+    })
+  );
+
+  const generateMany = useMutation(
+    trpc.errorReports.generateMany.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries();
+      },
+    })
+  );
+
+  const deleteAll = useMutation(
+    trpc.errorReports.deleteAll.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries();
+      },
+    })
+  );
 
   let statusText = "Disconnected";
   if (healthCheck.isLoading) {
@@ -21,7 +45,6 @@ export default function Home() {
       <ModeToggle />
       <pre className="mb-8 overflow-x-auto font-mono text-sm">opentrace</pre>
 
-      {/* API Status */}
       <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
         <h2 className="mb-4 font-medium text-lg dark:text-white">API Status</h2>
         <div className="flex items-center gap-3">
@@ -32,7 +55,38 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Error Reports Grid */}
+      <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
+        <h2 className="mb-4 font-medium text-lg dark:text-white">
+          Dev Controls
+        </h2>
+        <div className="flex flex-wrap gap-3">
+          <button
+            className="border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            disabled={generateOne.isPending}
+            onClick={() => generateOne.mutate()}
+            type="button"
+          >
+            {generateOne.isPending ? "Generating..." : "Generate 1 Error"}
+          </button>
+          <button
+            className="border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            disabled={generateMany.isPending}
+            onClick={() => generateMany.mutate()}
+            type="button"
+          >
+            {generateMany.isPending ? "Generating..." : "Generate 10 Errors"}
+          </button>
+          <button
+            className="border border-red-300 bg-red-50 px-4 py-2 text-red-700 text-sm hover:bg-red-100 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+            disabled={deleteAll.isPending}
+            onClick={() => deleteAll.mutate()}
+            type="button"
+          >
+            {deleteAll.isPending ? "Deleting..." : "Delete All Errors"}
+          </button>
+        </div>
+      </div>
+
       <div className="space-y-4">
         {errorReports.data?.slice(0, 10).map((report) => (
           <div
