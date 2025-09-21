@@ -62,17 +62,17 @@ export default function Home() {
       <ModeToggle />
       <pre className="mb-8 overflow-x-auto font-mono text-sm">opentrace</pre>
 
-      <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
+      <div className="mb-6 border border-neutral-300 bg-white p-6 dark:border-neutral-600 dark:bg-neutral-800">
         <h2 className="mb-4 font-medium text-lg dark:text-white">API Status</h2>
         <div className="flex items-center gap-3">
           <div
             className={`h-3 w-3 ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
           />
-          <span className="text-gray-600 dark:text-gray-300">{statusText}</span>
+          <span className="text-neutral-600 dark:text-neutral-300">{statusText}</span>
         </div>
       </div>
 
-      <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
+      <div className="mb-6 border border-neutral-300 bg-white p-6 dark:border-neutral-600 dark:bg-neutral-800">
         <h2 className="mb-4 font-medium text-lg dark:text-white">
           SDK Test Controls
         </h2>
@@ -81,7 +81,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
+      <div className="mb-6 border border-neutral-300 bg-white p-6 dark:border-neutral-600 dark:bg-neutral-800">
         <h2 className="mb-4 font-medium text-lg dark:text-white">
           Dev Controls
         </h2>
@@ -89,8 +89,8 @@ export default function Home() {
           <button
             className={`border px-4 py-2 text-sm ${
               viewMode === "groups"
-                ? "border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                : "border-gray-300 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                ? "border-neutral-300 bg-neutral-100 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/20 dark:text-neutral-400"
+                : "border-neutral-300 bg-white hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600"
             }`}
             onClick={() => setViewMode("groups")}
             type="button"
@@ -100,8 +100,8 @@ export default function Home() {
           <button
             className={`border px-4 py-2 text-sm ${
               viewMode === "individual"
-                ? "border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                : "border-gray-300 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                ? "border-neutral-300 bg-neutral-100 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/20 dark:text-neutral-400"
+                : "border-neutral-300 bg-white hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600"
             }`}
             onClick={() => setViewMode("individual")}
             type="button"
@@ -111,7 +111,7 @@ export default function Home() {
         </div>
         <div className="flex flex-wrap gap-3">
           <button
-            className="border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            className="border border-neutral-300 bg-white px-4 py-2 text-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600"
             disabled={generateOne.isPending}
             onClick={() => generateOne.mutate()}
             type="button"
@@ -119,7 +119,7 @@ export default function Home() {
             {generateOne.isPending ? "Generating..." : "Generate 1 Error"}
           </button>
           <button
-            className="border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            className="border border-neutral-300 bg-white px-4 py-2 text-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600"
             disabled={generateMany.isPending}
             onClick={() => generateMany.mutate()}
             type="button"
@@ -143,20 +143,20 @@ export default function Home() {
           <>
             {errorGroups.data?.map((group) => (
               <div
-                className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                className="border border-neutral-300 bg-white p-4 dark:border-neutral-600 dark:bg-neutral-800"
                 key={group.fingerprint}
               >
-                <div className="mb-2 font-bold text-gray-900 dark:text-white">
+                <div className="mb-2 font-bold text-neutral-900 dark:text-white">
                   {group.message}
                 </div>
-                <div className="mb-2 text-gray-400 text-sm dark:text-gray-500">
+                <div className="mb-2 text-neutral-400 text-sm dark:text-neutral-500">
                   {group.type} · {group.source}
                 </div>
-                <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                <div className="mb-2 text-neutral-500 text-xs dark:text-neutral-400">
                   First: {new Date(group.firstSeen).toLocaleString()} · Last:{" "}
                   {new Date(group.lastSeen).toLocaleString()}
                 </div>
-                <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                <div className="mb-2 text-neutral-500 text-xs dark:text-neutral-400">
                   Project: {group.projectId}
                 </div>
                 <div className="font-medium text-orange-600 text-sm dark:text-orange-400">
@@ -167,12 +167,12 @@ export default function Home() {
             {errorGroups.isLoading &&
               Array.from({ length: 5 }).map((_) => (
                 <div
-                  className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                  className="border border-neutral-300 bg-white p-4 dark:border-neutral-600 dark:bg-neutral-800"
                   key={`loading-group-${crypto.randomUUID()}`}
                 >
-                  <div className="mb-2 h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-700" />
-                  <div className="mb-2 h-3 w-32 animate-pulse bg-gray-200 dark:bg-gray-700" />
-                  <div className="h-3 w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
+                  <div className="mb-2 h-4 w-24 animate-pulse bg-neutral-200 dark:bg-neutral-700" />
+                  <div className="mb-2 h-3 w-32 animate-pulse bg-neutral-200 dark:bg-neutral-700" />
+                  <div className="h-3 w-full animate-pulse bg-neutral-200 dark:bg-neutral-700" />
                 </div>
               ))}
           </>
@@ -183,21 +183,21 @@ export default function Home() {
               const isExpanded = expandedErrors.has(report.id);
               return (
                 <div
-                  className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                  className="border border-neutral-300 bg-white p-4 dark:border-neutral-600 dark:bg-neutral-800"
                   key={report.id}
                 >
-                  <div className="mb-2 font-bold text-gray-900 dark:text-white">
+                  <div className="mb-2 font-bold text-neutral-900 dark:text-white">
                     {report.message}
                   </div>
-                  <div className="mb-2 text-gray-400 text-sm dark:text-gray-500">
+                  <div className="mb-2 text-neutral-400 text-sm dark:text-neutral-500">
                     {report.type} · {report.source}:{report.line}:
                     {report.column}
                   </div>
-                  <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                  <div className="mb-2 text-neutral-500 text-xs dark:text-neutral-400">
                     {new Date(report.createdAt).toLocaleString()} ·{" "}
                     {report.userAgent}
                   </div>
-                  <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                  <div className="mb-2 text-neutral-500 text-xs dark:text-neutral-400">
                     Project: {report.projectId} · Fingerprint:{" "}
                     {report.fingerprint}
                   </div>
@@ -208,11 +208,11 @@ export default function Home() {
                       type="button"
                     >
                       {isExpanded ? (
-                        <pre className="mt-2 max-h-40 overflow-auto text-gray-700 text-xs dark:text-gray-300">
+                        <pre className="mt-2 max-h-40 overflow-auto text-neutral-700 text-xs dark:text-neutral-300">
                           {report.stack}
                         </pre>
                       ) : (
-                        <div className="mt-2 text-gray-400 text-xs hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
+                        <div className="mt-2 text-neutral-400 text-xs hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-400">
                           Click to view stack trace...
                         </div>
                       )}
@@ -224,12 +224,12 @@ export default function Home() {
             {errorReports.isLoading &&
               Array.from({ length: 10 }).map((_) => (
                 <div
-                  className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                  className="border border-neutral-300 bg-white p-4 dark:border-neutral-600 dark:bg-neutral-800"
                   key={`loading-${crypto.randomUUID()}`}
                 >
-                  <div className="mb-2 h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-700" />
-                  <div className="mb-2 h-3 w-32 animate-pulse bg-gray-200 dark:bg-gray-700" />
-                  <div className="h-3 w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
+                  <div className="mb-2 h-4 w-24 animate-pulse bg-neutral-200 dark:bg-neutral-700" />
+                  <div className="mb-2 h-3 w-32 animate-pulse bg-neutral-200 dark:bg-neutral-700" />
+                  <div className="h-3 w-full animate-pulse bg-neutral-200 dark:bg-neutral-700" />
                 </div>
               ))}
           </>
