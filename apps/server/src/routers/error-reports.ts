@@ -15,8 +15,8 @@ export const errorReportsRouter = router({
       const p = input.payload;
 
       const fingerprint = generateFingerprint(
-        p.message ?? "Unknown", 
-        p.stack, 
+        p.message ?? "Unknown",
+        p.stack,
         input.projectId
       );
 
@@ -73,14 +73,15 @@ export const errorReportsRouter = router({
 
   getGroups: publicProcedure
     .input(z.object({ projectId: z.string() }))
-    .query(async ({ input }) => {
-      return await db
-        .select()
-        .from(errorGroups)
-        .where(eq(errorGroups.projectId, input.projectId))
-        .orderBy(desc(errorGroups.lastSeen))
-        .limit(20);
-    }),
+    .query(
+      async ({ input }) =>
+        await db
+          .select()
+          .from(errorGroups)
+          .where(eq(errorGroups.projectId, input.projectId))
+          .orderBy(desc(errorGroups.lastSeen))
+          .limit(20)
+    ),
 
   // Dev routes
   generateOne: publicProcedure.mutation(async () => {
@@ -91,7 +92,11 @@ export const errorReportsRouter = router({
       timestamp: new Date().toISOString(),
     };
 
-    const fingerprint = generateFingerprint(payload.message, payload.stack, "demo");
+    const fingerprint = generateFingerprint(
+      payload.message,
+      payload.stack,
+      "demo"
+    );
 
     const result = await db
       .insert(errorReport)
@@ -159,7 +164,11 @@ export const errorReportsRouter = router({
 
       const projectId = Math.random() > 0.5 ? "demo" : "production";
       const stack = `Error: ${errorMessages[i]}\n    at function${i + 1} (file.js:${Math.floor(Math.random() * 100) + 1}:${Math.floor(Math.random() * 50) + 1})`;
-      const fingerprint = generateFingerprint(payload.message, stack, projectId);
+      const fingerprint = generateFingerprint(
+        payload.message,
+        stack,
+        projectId
+      );
 
       return {
         projectId,
@@ -184,7 +193,7 @@ export const errorReportsRouter = router({
         .insert(errorGroups)
         .values({
           projectId: report.projectId,
-          fingerprint: report.fingerprint!,
+          fingerprint: report.fingerprint ?? "",
           message: report.message,
           type: report.type,
           source: report.source,
@@ -207,9 +216,9 @@ export const errorReportsRouter = router({
   deleteAll: publicProcedure.mutation(async () => {
     const reportsResult = await db.delete(errorReport).returning();
     const groupsResult = await db.delete(errorGroups).returning();
-    return { 
+    return {
       deletedReports: reportsResult.length,
-      deletedGroups: groupsResult.length 
+      deletedGroups: groupsResult.length,
     };
   }),
 

@@ -68,7 +68,9 @@ export default function Home() {
           <div
             className={`h-3 w-3 ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
           />
-          <span className="text-neutral-600 dark:text-neutral-300">{statusText}</span>
+          <span className="text-neutral-600 dark:text-neutral-300">
+            {statusText}
+          </span>
         </div>
       </div>
 
