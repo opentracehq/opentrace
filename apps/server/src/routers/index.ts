@@ -22,5 +22,13 @@ export const appRouter = router({
         .returning();
       return result[0];
     }),
+  getErrorReports: publicProcedure.query(async () => {
+    const reports = await db
+      .select()
+      .from(errorReport)
+      .orderBy(errorReport.createdAt)
+      .limit(10);
+    return reports;
+  }),
 });
 export type AppRouter = typeof appRouter;
