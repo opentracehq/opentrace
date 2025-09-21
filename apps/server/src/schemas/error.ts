@@ -6,3 +6,8 @@ export const errorReportSchema = z.object({
   payload: z.any(),
   createdAt: z.string(),
 });
+
+export const createErrorReportSchema = z.object({
+  projectId: z.string(),
+  payload: z.any(),
+});
