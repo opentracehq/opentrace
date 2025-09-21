@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: dev tools mvp */
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/index.js";
@@ -10,11 +11,20 @@ export const errorReportsRouter = router({
   ingest: publicProcedure
     .input(createErrorReportSchema)
     .mutation(async ({ input }) => {
+      const p = input.payload;
+
       const result = await db
         .insert(errorReport)
         .values({
           projectId: input.projectId,
-          payload: input.payload,
+          message: p.message ?? "Unknown error",
+          type: p.errorName ?? p.name ?? p.type ?? "Error",
+          source: p.source,
+          line: p.line ? Number(p.line) : null,
+          column: p.column ? Number(p.column) : null,
+          stack: p.stack,
+          userAgent: p.userAgent ?? "unknown",
+          payload: p,
           createdAt: new Date(),
         })
         .returning();
@@ -32,16 +42,25 @@ export const errorReportsRouter = router({
 
   // Dev routes
   generateOne: publicProcedure.mutation(async () => {
+    const payload = {
+      error: "boom",
+      message: "Something went wrong",
+      stack: "Error: boom at line 42",
+      timestamp: new Date().toISOString(),
+    };
+
     const result = await db
       .insert(errorReport)
       .values({
         projectId: "demo",
-        payload: {
-          error: "boom",
-          message: "Something went wrong",
-          stack: "Error: boom at line 42",
-          timestamp: new Date().toISOString(),
-        },
+        message: payload.message,
+        type: "Error",
+        source: "dev-generator",
+        line: 42,
+        column: 10,
+        stack: payload.stack,
+        userAgent: "dev-tool",
+        payload,
         createdAt: new Date(),
       })
       .returning();
@@ -62,19 +81,30 @@ export const errorReportsRouter = router({
       "Internal server error",
     ];
 
-    const reports = Array.from({ length: 10 }, (_, i) => ({
-      // biome-ignore lint/style/noMagicNumbers: dev tools mvp
-      projectId: Math.random() > 0.5 ? "demo" : "production",
-      payload: {
+    const reports = Array.from({ length: 10 }, (_, i) => {
+      const payload = {
         error: errorMessages[i],
         message: `Error ${i + 1}: ${errorMessages[i]}`,
-        // biome-ignore lint/style/noMagicNumbers: dev tools mvp
         code: `ERR_${String(i + 1).padStart(3, "0")}`,
         severity: "critical",
         timestamp: new Date().toISOString(),
-      },
-      createdAt: new Date(),
-    }));
+      };
+
+      return {
+        projectId: Math.random() > 0.5 ? "demo" : "production",
+        message: payload.message,
+        type: "Error",
+        source: "dev-generator",
+        line: Math.floor(Math.random() * 100) + 1,
+        column: Math.floor(Math.random() * 50) + 1,
+        stack: `Error: ${errorMessages[i]}\n    at function${i + 1} (file.js:${Math.floor(Math.random() * 100) + 1}:${
+          Math.floor(Math.random() * 50) + 1
+        })`,
+        userAgent: "dev-tool",
+        payload,
+        createdAt: new Date(),
+      };
+    });
 
     const result = await db.insert(errorReport).values(reports).returning();
     return result;
