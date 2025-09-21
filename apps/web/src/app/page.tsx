@@ -12,7 +12,7 @@ export default function Home() {
   const [expandedErrors, setExpandedErrors] = useState<Set<string>>(new Set());
 
   const toggleError = (errorId: string) => {
-    setExpandedErrors(prev => {
+    setExpandedErrors((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(errorId)) {
         newSet.delete(errorId);
