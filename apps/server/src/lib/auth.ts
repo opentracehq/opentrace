@@ -19,7 +19,11 @@ export const auth = betterAuth<BetterAuthOptions>({
     defaultCookieAttributes: {
       sameSite: "none",
       secure: true,
-      httpOnly: true,
+      partitioned: true,
     },
   },
+  secret: process.env.BETTER_AUTH_SECRET || "",
+
+  // biome-ignore lint/style/useNamingConvention: better-auth
+  baseURL: process.env.BETTER_AUTH_URL || "",
 });
