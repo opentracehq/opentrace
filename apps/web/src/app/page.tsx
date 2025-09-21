@@ -115,37 +115,40 @@ export default function Home() {
         {errorReports.data?.slice(0, 10).map((report) => {
           const isExpanded = expandedErrors.has(report.id);
           return (
-            <button
-              className="w-full cursor-pointer border border-gray-300 bg-white p-4 text-left hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+            <div
+              className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
               key={report.id}
-              onClick={() => toggleError(report.id)}
-              type="button"
             >
-              <div className="mb-2 font-medium text-gray-900 text-sm dark:text-white">
-                Project: {report.projectId}
+              <div className="mb-2 font-bold text-gray-900 dark:text-white">
+                {report.message}
+              </div>
+              <div className="mb-2 text-gray-400 text-sm dark:text-gray-500">
+                {report.type} · {report.source}:{report.line}:{report.column}
               </div>
               <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
-                {new Date(report.createdAt).toLocaleString()}
+                {new Date(report.createdAt).toLocaleString()} · {report.userAgent}
               </div>
-              {isExpanded ? (
-                <div className="text-gray-700 text-xs dark:text-gray-300">
-                  <pre className="whitespace-pre-wrap break-words font-mono">
-                    {typeof report.payload === "object"
-                      ? JSON.stringify(report.payload, null, 2)
-                      : String(report.payload)}
-                  </pre>
-                </div>
-              ) : (
-                <div className="text-gray-700 text-xs dark:text-gray-300">
-                  {typeof report.payload === "object"
-                    ? `${JSON.stringify(report.payload).substring(0, PREVIEW_LENGTH)}...`
-                    : `${String(report.payload).substring(0, PREVIEW_LENGTH)}...`}
-                </div>
+              <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                Project: {report.projectId}
+              </div>
+              {report.stack && (
+                <button
+                  className="w-full cursor-pointer text-left"
+                  onClick={() => toggleError(report.id)}
+                  type="button"
+                >
+                  {isExpanded ? (
+                    <pre className="mt-2 max-h-40 overflow-auto text-gray-700 text-xs dark:text-gray-300">
+                      {report.stack}
+                    </pre>
+                  ) : (
+                    <div className="mt-2 text-gray-400 text-xs hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
+                      Click to view stack trace...
+                    </div>
+                  )}
+                </button>
               )}
-              <div className="mt-2 text-gray-400 text-xs dark:text-gray-500">
-                {isExpanded ? "Click to collapse" : "Click to expand"}
-              </div>
-            </button>
+            </div>
           );
         })}
         {errorReports.isLoading &&
