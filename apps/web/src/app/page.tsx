@@ -1,16 +1,18 @@
 "use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ModeToggle } from "@/components/mode-toggle";
 import { BreakButton } from "@/components/break-button";
+import { ModeToggle } from "@/components/mode-toggle";
 import { queryClient, trpc } from "@/utils/trpc";
-
-const PREVIEW_LENGTH = 100;
 
 export default function Home() {
   const healthCheck = useQuery(trpc.healthCheck.queryOptions());
   const errorReports = useQuery(trpc.errorReports.getAll.queryOptions());
+  const errorGroups = useQuery(
+    trpc.errorReports.getGroups.queryOptions({ projectId: "demo" })
+  );
   const [expandedErrors, setExpandedErrors] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"groups" | "individual">("groups");
 
   const toggleError = (errorId: string) => {
     setExpandedErrors((prev) => {
@@ -83,6 +85,30 @@ export default function Home() {
         <h2 className="mb-4 font-medium text-lg dark:text-white">
           Dev Controls
         </h2>
+        <div className="mb-4 flex gap-2">
+          <button
+            className={`border px-4 py-2 text-sm ${
+              viewMode === "groups"
+                ? "border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                : "border-gray-300 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            }`}
+            onClick={() => setViewMode("groups")}
+            type="button"
+          >
+            Grouped View
+          </button>
+          <button
+            className={`border px-4 py-2 text-sm ${
+              viewMode === "individual"
+                ? "border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                : "border-gray-300 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            }`}
+            onClick={() => setViewMode("individual")}
+            type="button"
+          >
+            Individual Reports
+          </button>
+        </div>
         <div className="flex flex-wrap gap-3">
           <button
             className="border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
@@ -112,56 +138,102 @@ export default function Home() {
       </div>
 
       <div className="space-y-4">
-        {errorReports.data?.slice(0, 10).map((report) => {
-          const isExpanded = expandedErrors.has(report.id);
-          return (
-            <div
-              className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
-              key={report.id}
-            >
-              <div className="mb-2 font-bold text-gray-900 dark:text-white">
-                {report.message}
+        {viewMode === "groups" ? (
+          // Grouped View
+          <>
+            {errorGroups.data?.map((group) => (
+              <div
+                className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                key={group.fingerprint}
+              >
+                <div className="mb-2 font-bold text-gray-900 dark:text-white">
+                  {group.message}
+                </div>
+                <div className="mb-2 text-gray-400 text-sm dark:text-gray-500">
+                  {group.type} · {group.source}
+                </div>
+                <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                  First: {new Date(group.firstSeen).toLocaleString()} · Last:{" "}
+                  {new Date(group.lastSeen).toLocaleString()}
+                </div>
+                <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                  Project: {group.projectId}
+                </div>
+                <div className="font-medium text-orange-600 text-sm dark:text-orange-400">
+                  Occurrences: {group.occurrences}
+                </div>
               </div>
-              <div className="mb-2 text-gray-400 text-sm dark:text-gray-500">
-                {report.type} · {report.source}:{report.line}:{report.column}
-              </div>
-              <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
-                {new Date(report.createdAt).toLocaleString()} · {report.userAgent}
-              </div>
-              <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
-                Project: {report.projectId}
-              </div>
-              {report.stack && (
-                <button
-                  className="w-full cursor-pointer text-left"
-                  onClick={() => toggleError(report.id)}
-                  type="button"
+            ))}
+            {errorGroups.isLoading &&
+              Array.from({ length: 5 }).map((_) => (
+                <div
+                  className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                  key={`loading-group-${crypto.randomUUID()}`}
                 >
-                  {isExpanded ? (
-                    <pre className="mt-2 max-h-40 overflow-auto text-gray-700 text-xs dark:text-gray-300">
-                      {report.stack}
-                    </pre>
-                  ) : (
-                    <div className="mt-2 text-gray-400 text-xs hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
-                      Click to view stack trace...
-                    </div>
+                  <div className="mb-2 h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-700" />
+                  <div className="mb-2 h-3 w-32 animate-pulse bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-3 w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
+                </div>
+              ))}
+          </>
+        ) : (
+          // Individual Reports View
+          <>
+            {errorReports.data?.slice(0, 10).map((report) => {
+              const isExpanded = expandedErrors.has(report.id);
+              return (
+                <div
+                  className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                  key={report.id}
+                >
+                  <div className="mb-2 font-bold text-gray-900 dark:text-white">
+                    {report.message}
+                  </div>
+                  <div className="mb-2 text-gray-400 text-sm dark:text-gray-500">
+                    {report.type} · {report.source}:{report.line}:
+                    {report.column}
+                  </div>
+                  <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                    {new Date(report.createdAt).toLocaleString()} ·{" "}
+                    {report.userAgent}
+                  </div>
+                  <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+                    Project: {report.projectId} · Fingerprint:{" "}
+                    {report.fingerprint}
+                  </div>
+                  {report.stack && (
+                    <button
+                      className="w-full cursor-pointer text-left"
+                      onClick={() => toggleError(report.id)}
+                      type="button"
+                    >
+                      {isExpanded ? (
+                        <pre className="mt-2 max-h-40 overflow-auto text-gray-700 text-xs dark:text-gray-300">
+                          {report.stack}
+                        </pre>
+                      ) : (
+                        <div className="mt-2 text-gray-400 text-xs hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
+                          Click to view stack trace...
+                        </div>
+                      )}
+                    </button>
                   )}
-                </button>
-              )}
-            </div>
-          );
-        })}
-        {errorReports.isLoading &&
-          Array.from({ length: 10 }).map((_) => (
-            <div
-              className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
-              key={`loading-${crypto.randomUUID()}`}
-            >
-              <div className="mb-2 h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-700" />
-              <div className="mb-2 h-3 w-32 animate-pulse bg-gray-200 dark:bg-gray-700" />
-              <div className="h-3 w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
-            </div>
-          ))}
+                </div>
+              );
+            })}
+            {errorReports.isLoading &&
+              Array.from({ length: 10 }).map((_) => (
+                <div
+                  className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+                  key={`loading-${crypto.randomUUID()}`}
+                >
+                  <div className="mb-2 h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-700" />
+                  <div className="mb-2 h-3 w-32 animate-pulse bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-3 w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
+                </div>
+              ))}
+          </>
+        )}
       </div>
     </div>
   );
