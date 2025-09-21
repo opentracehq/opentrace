@@ -1,5 +1,5 @@
 import { protectedProcedure, publicProcedure, router } from "../lib/trpc.js";
-import { errorReportsRouter } from "./errorReports.js";
+import { errorReportsRouter } from "./error-reports.js";
 
 export const appRouter = router({
   healthCheck: publicProcedure.query(() => "OK"),
