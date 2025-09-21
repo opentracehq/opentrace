@@ -31,6 +31,7 @@ export const errorReportsRouter = router({
           line: p.line ? Number(p.line) : null,
           column: p.column ? Number(p.column) : null,
           stack: p.stack,
+          errorName: p.errorName,
           userAgent: p.userAgent ?? "unknown",
           fingerprint,
           payload: p,

@@ -9,6 +9,7 @@ export const errorReportSchema = z.object({
   line: z.number().nullable(),
   column: z.number().nullable(),
   stack: z.string().nullable(),
+  errorName: z.string().nullable(),
   userAgent: z.string().nullable(),
   payload: z.any(),
   createdAt: z.string(),

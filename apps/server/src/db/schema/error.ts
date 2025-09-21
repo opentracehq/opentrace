@@ -18,6 +18,7 @@ export const errorReport = pgTable("error_report", {
   line: integer("line"),
   column: integer("column"),
   stack: text("stack"),
+  errorName: text("error_name"),
   userAgent: text("user_agent"),
   fingerprint: text("fingerprint"),
   payload: jsonb("payload").notNull(),
