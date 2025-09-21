@@ -1,9 +1,14 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
+import { ModeToggle } from "@/components/mode-toggle";
 import { trpc } from "@/utils/trpc";
+
+const PREVIEW_LENGTH = 100;
 
 export default function Home() {
   const healthCheck = useQuery(trpc.healthCheck.queryOptions());
+  const errorReports = useQuery(trpc.getErrorReports.queryOptions());
+
   let statusText = "Disconnected";
   if (healthCheck.isLoading) {
     statusText = "Checking...";
@@ -12,18 +17,52 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-2">
-      <pre className="overflow-x-auto font-mono text-sm">opentrace</pre>
-      <div className="grid gap-6">
-        <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">API Status</h2>
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-2 w-2 rounded-full ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
-            />
-            <span className="text-muted-foreground text-sm">{statusText}</span>
+    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      <ModeToggle />
+      <pre className="mb-8 overflow-x-auto font-mono text-sm">opentrace</pre>
+
+      {/* API Status */}
+      <div className="mb-6 border border-gray-300 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
+        <h2 className="mb-4 font-medium text-lg dark:text-white">API Status</h2>
+        <div className="flex items-center gap-3">
+          <div
+            className={`h-3 w-3 ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
+          />
+          <span className="text-gray-600 dark:text-gray-300">{statusText}</span>
+        </div>
+      </div>
+
+      {/* Error Reports Grid */}
+      <div className="space-y-4">
+        {errorReports.data?.slice(0, 10).map((report) => (
+          <div
+            className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+            key={report.id}
+          >
+            <div className="mb-2 font-medium text-gray-900 text-sm dark:text-white">
+              Project: {report.projectId}
+            </div>
+            <div className="mb-2 text-gray-500 text-xs dark:text-gray-400">
+              {new Date(report.createdAt).toLocaleString()}
+            </div>
+            <div className="text-gray-700 text-xs dark:text-gray-300">
+              {typeof report.payload === "object"
+                ? `${JSON.stringify(report.payload).substring(0, PREVIEW_LENGTH)}...`
+                : `${String(report.payload).substring(0, PREVIEW_LENGTH)}...`}
+            </div>
           </div>
-        </section>
+        ))}
+        {errorReports.isLoading &&
+          Array.from({ length: 10 }).map((_) => (
+            <div
+              className="border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-800"
+              key={`loading-${crypto.randomUUID()}`}
+            >
+              <div className="mb-2 h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-700" />
+              <div className="mb-2 h-3 w-32 animate-pulse bg-gray-200 dark:bg-gray-700" />
+              <div className="h-3 w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
+            </div>
+          ))}
       </div>
     </div>
   );
